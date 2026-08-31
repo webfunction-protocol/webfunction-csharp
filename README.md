@@ -24,6 +24,23 @@ The explicit form is always available too, and is what dynamic dispatch calls un
 var result = await client.CallAsync("list-items", new Dictionary<string, object?> { ["a"] = "b" });
 ```
 
+## Real-world example
+
+`examples/AvailableApiVersions/` fetches the package at `https://api.reservepay.com/merchants`
+and calls its `available-api-versions` endpoint — the same smoke-test pattern used for
+webfunction-go and webfunction-java. Requires a bearer token, read from the
+`RESERVEPAY_BEARER_TOKEN` env var (deliberately not hardcoded):
+
+```
+cd examples/AvailableApiVersions
+RESERVEPAY_BEARER_TOKEN=... dotnet run
+```
+
+Exits early with a clear message if the env var isn't set. This hasn't been run against the
+live API yet — this sandbox can't reach `api.reservepay.com` (only a fixed allowlist of domains
+is reachable here), so it's only been verified to build and to fail cleanly without a token. Real
+verification against the live API is the natural next step, on your machine.
+
 ## Layout
 
 - `src/WebFunction/` — the library.
