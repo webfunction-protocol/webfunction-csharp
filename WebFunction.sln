@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{251C78CE-CB22-4E00-8C95-E05186036655}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebFunction", "src\WebFunction\WebFunction.csproj", "{04426E2C-F750-4EFD-A3F8-1D0E4EB2B678}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C61C62E9-0C45-4078-BD0A-6F7931AD3992}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebFunction.Verify", "test\WebFunction.Verify\WebFunction.Verify.csproj", "{F756B85A-72C7-4E3E-B311-BDFE8831A6CB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{04426E2C-F750-4EFD-A3F8-1D0E4EB2B678}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04426E2C-F750-4EFD-A3F8-1D0E4EB2B678}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04426E2C-F750-4EFD-A3F8-1D0E4EB2B678}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04426E2C-F750-4EFD-A3F8-1D0E4EB2B678}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F756B85A-72C7-4E3E-B311-BDFE8831A6CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F756B85A-72C7-4E3E-B311-BDFE8831A6CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F756B85A-72C7-4E3E-B311-BDFE8831A6CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F756B85A-72C7-4E3E-B311-BDFE8831A6CB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{04426E2C-F750-4EFD-A3F8-1D0E4EB2B678} = {251C78CE-CB22-4E00-8C95-E05186036655}
+		{F756B85A-72C7-4E3E-B311-BDFE8831A6CB} = {C61C62E9-0C45-4078-BD0A-6F7931AD3992}
+	EndGlobalSection
+EndGlobal
