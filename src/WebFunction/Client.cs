@@ -1,5 +1,8 @@
 using System.Dynamic;
+using System.Runtime.CompilerServices;
 using WebFunction.Exceptions;
+
+[assembly: InternalsVisibleTo("WebFunction.Verify")]
 
 namespace WebFunction;
 
@@ -89,7 +92,7 @@ public sealed class Client : DynamicObject
             : Naming.Dashify(endpointName);
 
         var endpoint = Package.GetEndpoint(wireName);
-        var url = new Uri(new Uri(Package.BaseUrl), wireName).ToString();
+        var url = JoinUrl(Package.BaseUrl, wireName);
         var headers = RequestExecutor.BuildHeaders(BearerAuth, Version);
 
         if (Pipeline is not null)
@@ -118,4 +121,21 @@ public sealed class Client : DynamicObject
 
     /// <inheritdoc />
     public override IEnumerable<string> GetDynamicMemberNames() => _endpointsByMemberName.Keys;
+
+    /// <summary>
+    /// Joins a package's base URL with an endpoint name, per
+    /// https://webfunction.org/package#url-composition: if <paramref name="baseUrl"/> ends in
+    /// "/", the name is appended directly; otherwise a single "/" is inserted. This is plain
+    /// string-level normalization, NOT RFC 3986 relative reference resolution.
+    ///
+    /// <para>An earlier version used <c>new Uri(new Uri(baseUrl), endpointName)</c>, which was a
+    /// real bug: RFC 3986 resolution treats the last path segment of a base URL that doesn't end
+    /// in "/" as replaceable, so resolving "list-people" against
+    /// "https://api.example.com/v1" silently dropped "v1" and produced
+    /// "https://api.example.com/list-people" instead of
+    /// "https://api.example.com/v1/list-people". The spec's rule has no such failure mode, so a
+    /// base_url works with or without a trailing slash.</para>
+    /// </summary>
+    internal static string JoinUrl(string baseUrl, string endpointName) =>
+        baseUrl.EndsWith('/') ? baseUrl + endpointName : baseUrl + "/" + endpointName;
 }

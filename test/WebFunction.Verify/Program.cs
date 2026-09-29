@@ -35,6 +35,63 @@ var server = new MockServer();
 server.Start();
 Console.WriteLine($"Mock server listening on {server.BaseUrl}\n");
 
+// --- 0. JoinUrl - regression test for a real bug (RFC 3986 resolution via `new Uri`) -----------
+
+await RunAsync("Client.JoinUrl matches spec's plain normalization, not RFC 3986 resolution", async () =>
+{
+    (string baseUrl, string name, string expected)[] cases =
+    [
+        ("https://api.example.com", "list-people", "https://api.example.com/list-people"),
+        ("https://api.example.com/", "list-people", "https://api.example.com/list-people"),
+        ("https://api.example.com/v1", "list-people", "https://api.example.com/v1/list-people"),
+        ("https://api.example.com/v1/", "list-people", "https://api.example.com/v1/list-people"),
+        ("https://api.example.com/v1/merchants", "list-people", "https://api.example.com/v1/merchants/list-people"),
+    ];
+    foreach (var (baseUrl, name, expected) in cases)
+    {
+        Check(Client.JoinUrl(baseUrl, name) == expected, $"JoinUrl({baseUrl}, {name}) == {expected}, got {Client.JoinUrl(baseUrl, name)}");
+    }
+    await Task.CompletedTask;
+});
+
+await RunAsync("CallAsync preserves a base_url path segment when base_url has no trailing slash", async () =>
+{
+    var basePathServer = new MockServer();
+    basePathServer.Start();
+    try
+    {
+        var requestedPaths = new List<string>();
+        Task<MockResponse> Ping(HttpListenerContext ctx)
+        {
+            requestedPaths.Add(ctx.Request.Url!.AbsolutePath);
+            return Task.FromResult(JsonResponse(200, "true"));
+        }
+        basePathServer.Handlers["/v1/ping"] = Ping;
+        basePathServer.Handlers["/v1/merchants/ping"] = Ping;
+
+        foreach (var basePath in new[] { "/v1", "/v1/", "/v1/merchants" })
+        {
+            var pkgJson = $$"""
+            {
+              "base_url": "{{basePathServer.BaseUrl}}{{basePath}}",
+              "name": "test-package",
+              "endpoints": [ { "name": "ping", "returns": ["boolean"], "arguments": [], "attributes": [] } ]
+            }
+            """;
+            using var doc = JsonDocument.Parse(pkgJson);
+            var client = Client.FromPackage(Package.FromJson(doc.RootElement));
+            await client.CallAsync("ping");
+        }
+
+        Check(requestedPaths.SequenceEqual(["/v1/ping", "/v1/ping", "/v1/merchants/ping"]),
+            $"expected [/v1/ping, /v1/ping, /v1/merchants/ping], got [{string.Join(", ", requestedPaths)}]");
+    }
+    finally
+    {
+        basePathServer.Stop();
+    }
+});
+
 // --- 1. FromPackageEndpointAsync -> CallAsync round trip, PascalCase name mapping ------------
 
 await RunAsync("FromPackageEndpoint -> Call round trip + name mapping", async () =>
