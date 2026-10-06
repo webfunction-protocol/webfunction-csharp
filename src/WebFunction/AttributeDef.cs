@@ -22,6 +22,7 @@ public sealed class AttributeDef
     public string Docs { get; }
 
     public bool Nullable => Flags.HasFlag("nullable");
+    public bool Private => Flags.HasFlag("private");
 
     public static AttributeDef? FromJson(JsonElement element)
     {

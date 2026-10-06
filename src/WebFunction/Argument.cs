@@ -25,6 +25,7 @@ public sealed class Argument
 
     public bool Required => Flags.HasFlag("required");
     public bool Optional => !Required;
+    public bool Private => Flags.HasFlag("private");
 
     public static Argument? FromJson(JsonElement element)
     {

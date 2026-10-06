@@ -268,6 +268,42 @@ await RunAsync("gzip-compressed response is decoded correctly", async () =>
         "gzip response decompressed and parsed correctly");
 });
 
+// --- 9. private flag on endpoints, arguments, and attributes -------------------------------
+
+await RunAsync("Private flag on Endpoint, Argument, and AttributeDef", () =>
+{
+    var json = JsonSerializer.Serialize(new
+    {
+        base_url = "https://api.example.com/",
+        endpoints = new object[]
+        {
+            new { name = "internal-sync", returns = "boolean", flags = new[] { "private" } },
+            new
+            {
+                name = "find-account",
+                returns = "object",
+                arguments = new object[]
+                {
+                    new { name = "id", type = "string", flags = new[] { "required" } },
+                    new { name = "debug", type = "boolean", flags = new[] { "private" } },
+                },
+                attributes = new object[]
+                {
+                    new { name = "email", type = "string" },
+                    new { name = "audit_ref", type = "string", flags = new[] { "private" } },
+                },
+            },
+        },
+    });
+    using var doc = JsonDocument.Parse(json);
+    var pkg = Package.FromJson(doc.RootElement);
+    var account = pkg.GetEndpoint("find-account")!;
+    Check(pkg.GetEndpoint("internal-sync")!.Private && !account.Private, "Endpoint.Private");
+    Check(account.GetArgument("debug")!.Private && !account.GetArgument("id")!.Private, "Argument.Private");
+    Check(account.GetAttribute("audit_ref")!.Private && !account.GetAttribute("email")!.Private, "AttributeDef.Private");
+    return Task.CompletedTask;
+});
+
 server.Stop();
 
 Console.WriteLine($"\n{passed} passed, {failures.Count} failed.");
